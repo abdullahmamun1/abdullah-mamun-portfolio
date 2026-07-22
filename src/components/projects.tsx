@@ -11,10 +11,10 @@ export function Projects() {
     >
       <Reveal>
         <SectionHeading
-          prefix=">"
+          prefix="05"
           eyebrow="projects/"
           title="Selected work"
-          description="Placeholders below — swap in your real projects, images, and links in src/data/profile.ts."
+          description="A few things I've shipped — from role-based REST APIs to a healthcare demo."
         />
       </Reveal>
 

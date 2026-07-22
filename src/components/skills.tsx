@@ -12,8 +12,8 @@ const gridVariants = {
 };
 
 const chipVariants = {
-  hidden: { opacity: 0, y: 14, scale: 0.9 },
-  visible: { opacity: 1, y: 0, scale: 1 },
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0 },
 };
 
 export function Skills() {
@@ -21,7 +21,7 @@ export function Skills() {
     <section id="skills" className="section-border mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
       <Reveal>
         <SectionHeading
-          prefix="$"
+          prefix="02"
           eyebrow="skills --list"
           title="Tools I build with"
           description="Grouped by where they sit in the stack — from languages to the databases underneath."
@@ -31,14 +31,18 @@ export function Skills() {
       <div className="grid gap-5 sm:grid-cols-2">
         {skillCategories.map((cat, i) => (
           <Reveal key={cat.name} delay={i * 0.06}>
-            <div className="card glow-ring h-full p-6 transition-shadow">
+            <motion.div
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              className="card glow-ring h-full p-6"
+            >
               <p className="font-mono text-xs text-[var(--muted)]">$ {cat.prompt}</p>
-              <p className="mt-1 font-display text-lg font-medium text-[var(--text)]">
+              <p className="mt-1 font-display text-xl text-[var(--text)]">
                 {cat.name}
               </p>
 
               <motion.div
-                className="mt-4 flex flex-wrap gap-2.5"
+                className="mt-4 flex flex-wrap gap-2"
                 variants={gridVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -54,25 +58,22 @@ export function Skills() {
                       key={skill}
                       variants={chipVariants}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      whileHover={{ y: -3, scale: 1.06 }}
-                      className="flex cursor-default items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-3 py-1.5 font-mono text-xs text-[var(--text)] transition-colors hover:border-current"
+                      whileHover={{ y: -2, scale: 1.04 }}
+                      whileTap={{ scale: 0.94 }}
+                      className="flex cursor-default items-center gap-1.5 border border-[var(--border)] bg-[var(--surface-2)] px-3 py-1.5 font-mono text-xs text-[var(--text)] transition-colors hover:border-current"
                       style={{ color: entry ? color : undefined }}
                     >
                       {Icon && (
-                        <motion.span
-                          className="flex items-center justify-center"
-                          whileHover={{ rotate: [0, -10, 10, 0] }}
-                          transition={{ duration: 0.5 }}
-                        >
+                        <span className="flex items-center justify-center">
                           <Icon size={14} />
-                        </motion.span>
+                        </span>
                       )}
                       <span className="text-[var(--text)]">{skill}</span>
                     </motion.span>
                   );
                 })}
               </motion.div>
-            </div>
+            </motion.div>
           </Reveal>
         ))}
       </div>

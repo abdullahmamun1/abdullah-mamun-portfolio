@@ -9,21 +9,21 @@ export function Avatar({ size = 96 }: { size?: number }) {
         alt={profile.name}
         width={size}
         height={size}
-        className="rounded-full border border-[var(--border)] object-cover"
-        style={{ width: size, height: size }}
+        className="border object-cover"
+        style={{ width: size, height: size, borderColor: "var(--border)" }}
       />
     );
   }
 
   return (
     <div
-      className="flex items-center justify-center rounded-full border border-[var(--border)] font-display font-semibold text-white"
+      className="flex items-center justify-center border font-display text-[var(--accent)]"
       style={{
         width: size,
         height: size,
-        fontSize: size * 0.34,
-        background:
-          "linear-gradient(135deg, var(--indigo), var(--cyan) 60%, var(--magenta))",
+        fontSize: size * 0.4,
+        borderColor: "var(--border)",
+        background: "var(--surface-2)",
       }}
       aria-label={profile.name}
       role="img"

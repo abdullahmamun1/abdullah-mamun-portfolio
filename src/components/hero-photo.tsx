@@ -1,73 +1,83 @@
+"use client";
+
 import Image from "next/image";
+import { useRef } from "react";
+import type { MouseEvent } from "react";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { profile } from "@/data/profile";
-import { CHIP_CLIP } from "@/lib/shapes";
+import { TerminalFrame } from "./terminal-frame";
 
 export function HeroPhoto() {
+  const reduce = useReducedMotion();
+  const frameRef = useRef<HTMLDivElement>(null);
+
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const rotateX = useSpring(rx, { stiffness: 200, damping: 20, mass: 0.6 });
+  const rotateY = useSpring(ry, { stiffness: 200, damping: 20, mass: 0.6 });
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (reduce || !frameRef.current) return;
+    const rect = frameRef.current.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    ry.set(px * 14);
+    rx.set(py * -14);
+  };
+
+  const handleMouseLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
   return (
-    <div className="relative mx-auto w-full max-w-md xl:max-w-lg">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-6 opacity-60 blur-2xl"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--indigo), var(--cyan) 55%, var(--magenta))",
-          clipPath: CHIP_CLIP,
-        }}
-      />
-
-      <div
-        className="relative aspect-[4/5] w-full"
-        style={{
-          clipPath: CHIP_CLIP,
-          border: "1px solid var(--border)",
-          boxShadow: "0 30px 80px -30px var(--glow-indigo)",
-        }}
+    <motion.div
+      className="relative mx-auto w-full max-w-md xl:max-w-lg"
+      animate={{ y: reduce ? 0 : [0, -10, 0] }}
+      transition={{ duration: reduce ? 0 : 6, repeat: reduce ? 0 : Infinity, ease: "easeInOut" }}
+    >
+      <motion.div
+        ref={frameRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ rotateX, rotateY, transformPerspective: 900 }}
       >
-        {profile.photoUrl ? (
-          <Image
-            src={profile.photoUrl}
-            alt={profile.name}
-            fill
-            priority
-            sizes="(min-width: 1280px) 480px, (min-width: 768px) 40vw, 90vw"
-            className="object-cover"
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--indigo), var(--cyan) 60%, var(--magenta))",
-            }}
-          >
-            <span className="font-display text-6xl font-semibold text-white/90">
-              {profile.initials}
-            </span>
+        <TerminalFrame label="me.png — 100%" glow ticks>
+          <div className="relative aspect-[4/5] w-full">
+            {profile.photoUrl ? (
+              <Image
+                src={profile.photoUrl}
+                alt={profile.name}
+                fill
+                priority
+                sizes="(min-width: 1280px) 480px, (min-width: 768px) 40vw, 90vw"
+                className="object-cover grayscale-[15%]"
+              />
+            ) : (
+              <div
+                className="flex h-full w-full items-center justify-center"
+                style={{ background: "var(--surface-2)" }}
+              >
+                <span className="font-display text-7xl text-[var(--accent)]">
+                  {profile.initials}
+                </span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* small "solder pad" accents at the cut corners, echoing the site's mono/circuit motif */}
-      <span
-        className="absolute left-[6%] top-[6%] h-2.5 w-2.5 rounded-full"
-        style={{ background: "var(--cyan)", boxShadow: "0 0 12px var(--cyan)" }}
-        aria-hidden="true"
-      />
-      <span
-        className="absolute bottom-[6%] right-[6%] h-2.5 w-2.5 rounded-full"
-        style={{ background: "var(--magenta)", boxShadow: "0 0 12px var(--magenta)" }}
-        aria-hidden="true"
-      />
+        </TerminalFrame>
+      </motion.div>
 
       <div
-        className="card absolute -bottom-6 -left-6 hidden p-4 backdrop-blur-md sm:block"
-        style={{ background: "color-mix(in srgb, var(--surface) 85%, transparent)" }}
+        className="card absolute -bottom-6 -left-6 hidden items-center gap-2 px-4 py-3 backdrop-blur-md sm:flex"
+        style={{ background: "color-mix(in srgb, var(--surface) 90%, transparent)" }}
       >
-        <p className="font-mono text-xs text-[var(--cyan)]">$ status</p>
-        <p className="mt-1 font-display text-sm font-medium text-[var(--text)]">
-          Open to remote roles
-        </p>
+        <span
+          className="h-2 w-2 shrink-0 animate-pulse"
+          style={{ background: "var(--accent-2)", boxShadow: "0 0 8px var(--accent-2)" }}
+          aria-hidden="true"
+        />
+        <p className="font-mono text-xs text-[var(--text)]">open to remote roles</p>
       </div>
-    </div>
+    </motion.div>
   );
 }

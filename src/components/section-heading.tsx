@@ -11,10 +11,10 @@ export function SectionHeading({
 }) {
   return (
     <div className="mb-12 max-w-2xl">
-      <p className="eyebrow" data-prefix={prefix}>
-        {eyebrow}
+      <p className="eyebrow">
+        <span className="bracket">[ {prefix} ]</span> {eyebrow}
       </p>
-      <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-[var(--text)] sm:text-4xl">
+      <h2 className="mt-2 font-display text-glow text-4xl tracking-tight text-[var(--text)] sm:text-5xl">
         {title}
       </h2>
       {description && (

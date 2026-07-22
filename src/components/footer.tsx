@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { profile } from "@/data/profile";
 
 export function Footer() {
@@ -8,9 +11,14 @@ export function Footer() {
           © {new Date().getFullYear()} {profile.name}. Built with Next.js & Tailwind.
         </p>
         <p className="font-mono text-xs text-[var(--muted)]">
-          <a href="#top" className="transition-colors hover:text-[var(--cyan)]">
-            back to top ↑
-          </a>
+          <motion.a
+            href="#top"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.94 }}
+            className="inline-block transition-colors hover:text-[var(--accent)]"
+          >
+            cd ~ ↑
+          </motion.a>
         </p>
       </div>
     </footer>

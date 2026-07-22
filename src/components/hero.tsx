@@ -1,10 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useRef, useState, type CSSProperties } from "react";
 import { Download, Github, Linkedin, Facebook, Twitter } from "lucide-react";
 import { profile } from "@/data/profile";
 import { Avatar } from "./avatar";
 import { HeroPhoto } from "./hero-photo";
+import { BootLoader } from "./boot-loader";
 
 const socialLinks = [
   { href: profile.social.github, label: "GitHub", Icon: Github },
@@ -13,91 +15,131 @@ const socialLinks = [
   { href: profile.social.twitter, label: "X / Twitter", Icon: Twitter },
 ];
 
+const typedStyle = {
+  "--tw-chars": profile.designation.length,
+  "--tw-full": `${profile.designation.length}ch`,
+} as CSSProperties;
+
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 140, damping: 18 } },
+};
+
 export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const [ready, setReady] = useState(false);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+
+  const blobY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 140]);
+  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 60]);
+  const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
   return (
     <section
       id="top"
-      className="relative grid w-full min-h-[calc(100dvh-4.5rem)] content-center gap-14 overflow-hidden px-6 py-14 md:grid-cols-[1.1fr_0.9fr] md:items-center md:px-10 md:py-20 lg:px-16 xl:px-24 2xl:px-32"
+      ref={sectionRef}
+      className="relative grid w-full min-h-[calc(100dvh-3.5rem)] content-center gap-14 overflow-hidden px-6 py-14 md:grid-cols-[1.1fr_0.9fr] md:items-center md:px-10 md:py-20 lg:px-16 xl:px-24 2xl:px-32"
     >
-      <div
+      <BootLoader onComplete={() => setReady(true)} />
+
+      <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full opacity-40 blur-3xl"
-        style={{ background: "var(--indigo)" }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-24 top-40 h-72 w-72 rounded-full opacity-30 blur-3xl"
-        style={{ background: "var(--cyan)" }}
+        className="pointer-events-none absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 rounded-full opacity-[0.12] blur-[100px]"
+        style={{ background: "var(--accent)", y: blobY }}
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
+        variants={container}
+        initial="hidden"
+        animate={ready ? "visible" : "hidden"}
+        style={{ opacity: reduce ? 1 : fade }}
         className="relative z-10"
       >
-        <div className="mb-6 flex items-center gap-4">
-          <Avatar size={64} />
+        <motion.div variants={item} className="mb-6 flex items-center gap-4">
+          <Avatar size={56} />
           <div>
-            <p className="eyebrow" data-prefix="$">
-              whoami
+            <p className="eyebrow">
+              <span className="bracket">[ 00 ]</span> whoami
             </p>
-            <p className="font-mono text-sm text-[var(--muted)]">{profile.location}</p>
+            <p className="mt-0.5 font-mono text-sm text-[var(--muted)]">{profile.location}</p>
           </div>
-        </div>
+        </motion.div>
 
-        <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight text-[var(--text)] sm:text-5xl lg:text-6xl">
+        <motion.h1
+          variants={item}
+          className="font-display text-glow text-6xl leading-[0.95] tracking-tight text-[var(--text)] sm:text-7xl lg:text-8xl"
+        >
           {profile.name}
-        </h1>
-        <p className="mt-4 font-mono text-lg text-[var(--indigo)] sm:text-xl">
-          {profile.designation}
-        </p>
-        <p className="mt-5 max-w-lg text-base leading-relaxed text-[var(--muted)] sm:text-lg">
-          {profile.tagline}
-        </p>
+          <span className="cursor-blink" aria-hidden="true" />
+        </motion.h1>
 
-        <div className="mt-9 flex flex-wrap items-center gap-4">
-          <a
+        <motion.p variants={item} className="mt-3 font-mono text-lg text-[var(--accent)] sm:text-xl">
+          {ready && (
+            <span className="typewriter" style={typedStyle}>
+              {profile.designation}
+            </span>
+          )}
+        </motion.p>
+
+        <motion.p variants={item} className="mt-5 max-w-lg text-base leading-relaxed text-[var(--muted)] sm:text-lg">
+          {profile.tagline}
+        </motion.p>
+
+        <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-4">
+          <motion.a
             href={profile.resumeUrl || "#contact"}
             download={Boolean(profile.resumeUrl)}
-            className="glow-ring flex items-center gap-2 rounded-full px-6 py-3 font-mono text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--indigo), var(--cyan))",
-            }}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            className="flex items-center gap-2 border px-6 py-3 font-mono text-sm font-medium transition-colors hover:bg-[var(--accent-soft)]"
+            style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
           >
             <Download size={16} />
-            {profile.resumeUrl ? "Download resume" : "Resume coming soon"}
-          </a>
+            {profile.resumeUrl ? "./download-resume" : "resume --pending"}
+          </motion.a>
 
-          <a
+          <motion.a
             href="#projects"
-            className="rounded-full border border-[var(--border)] px-6 py-3 font-mono text-sm text-[var(--text)] transition-colors hover:border-[var(--cyan)] hover:text-[var(--cyan)]"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            className="border border-[var(--border)] px-6 py-3 font-mono text-sm text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
-            View projects
-          </a>
-        </div>
+            cd ./projects
+          </motion.a>
+        </motion.div>
 
-        <div className="mt-9 flex items-center gap-3">
+        <motion.div variants={item} className="mt-9 flex items-center gap-3">
           {socialLinks.map(({ href, label, Icon }) => (
-            <a
+            <motion.a
               key={label}
               href={href}
               target="_blank"
               rel="noreferrer"
               aria-label={label}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] text-[var(--text)] transition-colors hover:border-[var(--cyan)] hover:text-[var(--cyan)]"
+              whileHover={{ y: -3, rotate: -6 }}
+              whileTap={{ scale: 0.9 }}
+              className="flex h-10 w-10 items-center justify-center border border-[var(--border)] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
             >
               <Icon size={17} />
-            </a>
+            </motion.a>
           ))}
-        </div>
+        </motion.div>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.94 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+        animate={ready ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.94 }}
+        transition={{ duration: 0.8, ease: "easeOut", delay: reduce ? 0 : 0.15 }}
+        style={{ y: photoY }}
         className="relative z-10"
       >
         <HeroPhoto />

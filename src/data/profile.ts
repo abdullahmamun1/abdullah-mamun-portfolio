@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────────
 
 export const profile = {
+  siteUrl: "https://abdullah-mamun-portfolio.vercel.app",
   name: "Abdullah Mamun",
   initials: "AM",
   designation: "Full Stack Developer",
